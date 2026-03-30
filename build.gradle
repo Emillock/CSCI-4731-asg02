@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+}
+
+group = 'az.edu.ada'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    include "**/asg02/**"
+    finalizedBy tasks.named('jacocoTestReport')
+}
+
+tasks.named('jacocoTestReport', JacocoReport) {
+    dependsOn tasks.named('test')
+    reports {
+        html.required = true
+        xml.required = true
+    }
+
+    classDirectories.setFrom(
+            fileTree(
+                    dir: new File(buildDir, "classes/java/main"),
+                    includes: ["**/asg02/**"],
+                    excludes: [
+                            "**/Main*"
+                    ]
+            )
+    )
+
+    sourceDirectories.setFrom(
+            fileTree(
+                    dir: "src/main/java",
+                    includes: ["**/asg02/**"]
+            )
+    )
+
+    executionData.setFrom(
+            new File(buildDir, "jacoco/test.exec")
+    )
+}
