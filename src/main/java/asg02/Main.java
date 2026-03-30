@@ -10,6 +10,9 @@ import asg02.products.automations.AutomationRoutine;
 import asg02.products.concretes.SmartDevice;
 import asg02.products.configurations.Configuration;
 import asg02.products.legacy.GlorbThermostat;
+import asg02.products.observers.*;
+import asg02.products.strategies.*;
+import asg02.products.commands.*;
 
 public class Main {
     public static void main(String[] args) throws CloneNotSupportedException {
@@ -72,5 +75,50 @@ public class Main {
 
         System.out.println("Check for IPs difference: "
                 + !livingRoom.getIpAddress().equals(guestRoom.getIpAddress()));
+
+        System.out.println("\n=== BEHAVIORAL PATTERNS ===\n");
+
+        // Observer + Strategy Pattern Demo
+        System.out.println("Observer Pattern - Motion Detection System:\n");
+
+        MotionSensor hallwaySensor = new MotionSensor("Hallway");
+        SmartLights hallwayLights = new SmartLights("Hallway");
+        SmartAlarm homeAlarm = new SmartAlarm("Home Security");
+
+        hallwaySensor.addObserver(hallwayLights);
+        hallwaySensor.addObserver(homeAlarm);
+
+        // Strategy Pattern - SILENT mode
+        System.out.println("\nStrategy Pattern - Alert System:\n");
+        homeAlarm.arm();
+        homeAlarm.setAlertStrategy("SILENT");
+        System.out.println("Motion detected (SILENT mode):");
+        hallwaySensor.detectMotion();
+
+        // Strategy Pattern - SIREN mode
+        System.out.println();
+        homeAlarm.setAlertStrategy("SIREN");
+        System.out.println("Motion detected (SIREN mode):");
+        hallwaySensor.detectMotion();
+
+        // Command Pattern Demo
+        System.out.println("\n\nCommand Pattern - Smart Remote:\n");
+
+        SmartRemote remote = new SmartRemote();
+
+        // Program buttons
+        remote.setCommand(0, new TurnOnLightCommand(hallwayLights));
+        remote.setCommand(1, new ArmAlarmCommand(homeAlarm));
+
+        System.out.println();
+
+        // Execute commands
+        remote.pressButton(0);  // Turn on lights
+        remote.pressButton(1);  // Arm alarm
+
+        System.out.println();
+
+        // Test undo
+        remote.pressUndo();     // Undo arm alarm -> disarm
     }
 }
